@@ -1,0 +1,68 @@
+[tool.pytest.ini_options]
+addopts = "-q"
+log_cli = true
+log_file_level = "DEBUG"
+log_format = "%(asctime)s.%(msecs)03d [%(levelno)-2s] %(message)s (%(module)s.%(funcName)s::%(levelno)s)"
+log_date_format = "%Y-%m-%dT%H:%M:%S"
+testpaths = ["tests"]
+
+[tool.poetry]
+name = "pytest-demo"
+version = "0.1.0"
+description = "Example pytest application to test external hardware or software"
+authors = ["Some Author <some.author@example.com>"]
+readme = "README.md"
+license = "LICENSE"
+packages = [
+    {include = "toolkit"}
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8"
+pytest-html = "*"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^24"
+ruff = "^0.7"
+pre-commit = "*"
+
+
+[tool.poetry.group.test]
+optional = true
+
+[tool.poetry.group.test.dependencies]
+pytest-timeout = "*"
+pytest-randomly = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.black]
+required-version = 24
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff.lint]
+# Note commented out rules will be added at a later date
+# Right now just want to have equivalent flake8 -> ruff transition
+select = [
+    "B",        # flake8-bugbear,
+    "C9",       # mccabe
+    "C4",       # flake8-comprehensions
+    "E", "W",   # pycodestyle
+    "F",        # pyflakes
+    "I",        # isort
+    "ISC",      # flake8-implicit-str-concat
+    "N",        # pep8-naming
+    "PL",       # pylint
+    "RUF",      # Ruff specific rules
+]
+# Never enforce `E501` (line length violations)
+ignore = ["E501"]
