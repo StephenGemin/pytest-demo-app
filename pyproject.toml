@@ -21,6 +21,7 @@ packages = [
 python = "^3.12"
 pytest = "^8"
 pytest-html = "*"
+pytest-runner = "*"
 
 [tool.poetry.group.dev]
 optional = true
