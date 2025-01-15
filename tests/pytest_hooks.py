@@ -129,3 +129,20 @@ def pytest_runtest_logreport(report):
         logger.debug(f"Test {report.nodeid} failed during {report.when} phase")
         if report.longrepr:
             logger.debug(f"Stacktrace:\n{report.longrepr}\n")
+
+
+# def pytest_report_teststatus(report, config):
+#     if report.when == "teardown":
+#         logger.info("in teardown")
+#     print(f"report_teststatus {report.when} {id(report)}")
+#     xfail = ""
+#     if report.when == "call":
+#         xfail = getattr(report, "wasxfail", "")
+#
+#
+# def pytest_runtest_makereport(item):
+#     outcome = yield
+#     report = outcome.get_result()
+#     if report.when == "call":
+#         report.user_properties.append(("xfailreason", getattr(report, "wasxfail", None)))
+#     print(f"runtest_makereport {report.when} {id(report)}")
