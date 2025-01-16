@@ -15,6 +15,11 @@ def pytest_addoption(parser):
         default=".logs",
         help="Specify the directory where session logs are stored relative to rootpath",
     )
+    parser.addoption(
+        "--no-collect-skip",
+        action="store_true",
+        help="Remove skipped tests from collection",
+    )
 
 
 def create_log_directories(config):
@@ -62,6 +67,20 @@ def pytest_configure(config):
 
     config.option.test_index1 = 0
     config.option.test_log_dir = None
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(items):
+    def is_skipped(item):
+        return any(m for m in item.own_markers if m.name == "skip")
+
+    try:
+        config = items[0].config
+    except IndexError:
+        pass
+    else:
+        if config.getoption("no_collect_skip"):
+            items[:] = [item for item in items if not is_skipped(item)]
 
 
 @pytest.hookimpl(tryfirst=True)
