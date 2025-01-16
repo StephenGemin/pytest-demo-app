@@ -30,7 +30,7 @@ def create_log_directories(config):
     config.option.session_id = session_id
     session_path = log_root / session_id
     session_path.mkdir(exist_ok=False)
-    config.option.session_log_dir = str(session_path)
+    config.option.session_log_dir = session_path
     return session_path
 
 
@@ -64,6 +64,9 @@ def pytest_configure(config):
         set_log_level(config, "log_file_level")
         if not config.getoption("log_date_format"):
             config.option.log_date_format = config.getini("log_date_format")
+        session_path = create_log_directories(config)
+        config.option.htmlpath = session_path / "report.html"
+        config.option.self_contained_html = True
 
     config.option.test_index1 = 0
     config.option.test_log_dir = None
@@ -87,8 +90,9 @@ def pytest_collection_modifyitems(items):
 def pytest_sessionstart(session):
     if not is_log_cli_enabled(session.config):
         return
-    session_path = create_log_directories(session.config)
-    file_handler = logging.FileHandler(session_path / "session.log", mode="w")
+    file_handler = logging.FileHandler(
+        session.config.getoption("session_log_dir") / "session.log", mode="w"
+    )
     file_handler.setLevel(session.config.option.log_file_level)
     file_handler.setFormatter(_create_log_formatter(session.config))
     logger.addHandler(file_handler)
@@ -148,6 +152,10 @@ def pytest_runtest_logreport(report):
         logger.debug(f"Test {report.nodeid} failed during {report.when} phase")
         if report.longrepr:
             logger.debug(f"Stacktrace:\n{report.longrepr}\n")
+
+
+def pytest_html_report_title(report):
+    report.title = "Pytest-Demo-App"
 
 
 # def pytest_report_teststatus(report, config):
