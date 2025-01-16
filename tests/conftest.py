@@ -42,3 +42,8 @@ def session_setup():
 @pytest.fixture
 def fixture_error():
     raise RuntimeError("some fixture error")
+
+
+@pytest.mark.skip(reason="skipped")
+def test_skip_test():
+    assert 0
