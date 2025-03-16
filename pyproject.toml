@@ -13,7 +13,6 @@ packages = [
 python = ">=3.12,<3.14"
 pytest = "^8"
 pytest-runner = "*"
-pyinstaller = "^6.12.0"
 pytest-html = "^4.1.1"
 pytest-metadata = "^3.1.1"
 pytest-tagging = "^1.6.0"
@@ -26,6 +25,11 @@ black = "24.10.0"
 ruff = "0.7.4"
 pre-commit = "*"
 
+[tool.poetry.group.build]
+optional = true
+
+[tool.poetry.group.build.dependencies]
+pyinstaller = "^6.12.0"
 
 [tool.poetry.group.test]
 optional = true
@@ -46,8 +50,6 @@ required-version = 24
 profile = "black"
 
 [tool.ruff.lint]
-# Note commented out rules will be added at a later date
-# Right now just want to have equivalent flake8 -> ruff transition
 select = [
     "B",        # flake8-bugbear,
     "C9",       # mccabe
