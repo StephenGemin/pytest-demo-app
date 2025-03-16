@@ -5,7 +5,7 @@ import pytest
 
 from toolkit.android.adb import AndroidDevice
 
-pytest_plugins = ["pytest_hooks"]
+pytest_plugins = ["tests.hooks"]
 
 
 @pytest.fixture

@@ -16,6 +16,7 @@ class TestMe:
         raise AssertionError()
 
     @pytest.mark.xfail(reason="failing test")
+    @pytest.mark.tags("smoke")
     def test_error_in_test_call(self, setup):
         pytest_api.raise_error()
 

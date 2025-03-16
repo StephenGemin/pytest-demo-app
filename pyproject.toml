@@ -10,17 +10,20 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.12,<3.14"
 pytest = "^8"
-pytest-html = "*"
 pytest-runner = "*"
+pyinstaller = "^6.12.0"
+pytest-html = "^4.1.1"
+pytest-metadata = "^3.1.1"
+pytest-tagging = "^1.6.0"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-black = "^24"
-ruff = "^0.7"
+black = "24.10.0"
+ruff = "0.7.4"
 pre-commit = "*"
 
 

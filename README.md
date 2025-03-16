@@ -28,6 +28,11 @@ Shoutout to the [Slash test framework](https://github.com/getslash/slash) for su
   - Future implementation to have the report go into each session directory
 - Maintain pytest's framework for CLI/ file logging level configuration.
 
+## PyInstaller
+Run tests from PyInstaller generated executable
+`poetry run pyinstaller main.spec`
+`dist/main.exe`
+
 ## Commands
 Some commands below are missing options due to defaults in pyproject.toml
 
