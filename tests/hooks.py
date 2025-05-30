@@ -11,10 +11,10 @@ logger = logging.getLogger()
 def pytest_addoption(parser):
     log_group = parser.getgroup("logging")
     log_group.addoption(
-        "--log-file-enabled",
+        "--session-logs",
         default=True,
-        type=bool,
-        help="Enable log file capture of session",
+        type=_str_to_bool,
+        help="Same functionality as log_cli option, but for file logs",
     )
     log_group.addoption(
         "--log-file-root",
@@ -157,6 +157,15 @@ def pytest_html_report_title(report):
 #     print(f"runtest_makereport {report.when} {id(report)}")
 
 
+def _str_to_bool(value):
+    if value in ("1", "true", "yes", "on", "True", "TRUE"):
+        return True
+    elif value in ("0", "false", "no", "off", "False", "FALSE"):
+        return False
+    else:
+        raise ValueError(f"Invalid boolean value: {value}")
+
+
 def _create_log_directories(config) -> Path:
     log_root = config.rootpath / config.option.log_file_root
     log_root.mkdir(parents=True, exist_ok=True)
@@ -174,7 +183,7 @@ def _is_log_cli_enabled(config) -> bool:
 
 
 def _is_log_file_enabled(config) -> bool:
-    return config.getoption("log_file_enabled")
+    return config.getoption("session_logs")
 
 
 def _set_log_level(config, option) -> None:
