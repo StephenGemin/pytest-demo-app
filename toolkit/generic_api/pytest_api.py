@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def test_name(request):
+def test_name(request) -> str:
     name = request.node.name
     logger.debug("test name is %s", name)
     return name
