@@ -14,15 +14,13 @@ python = ">=3.12,<3.14"
 pytest = "^8"
 pytest-runner = "*"
 pytest-html = "^4.1.1"
-pytest-metadata = "^3.1.1"
-pytest-tagging = "^1.6.0"
 
 [tool.poetry.group.dev]
 optional = true
 
 [tool.poetry.group.dev.dependencies]
 black = "24.10.0"
-ruff = "0.7.4"
+ruff = "0.11.11"
 pre-commit = "*"
 
 [tool.poetry.group.build]

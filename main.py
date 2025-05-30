@@ -1,3 +1,5 @@
+"""An alternative entry point for pytest; mainly for PyInstaller"""
+
 import sys
 
 import pytest

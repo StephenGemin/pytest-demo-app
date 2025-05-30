@@ -9,64 +9,56 @@ logger = logging.getLogger()
 
 
 def pytest_addoption(parser):
-    parser.addoption(
+    log_group = parser.getgroup("logging")
+    log_group.addoption(
+        "--log-file-enabled",
+        default=True,
+        type=bool,
+        help="Enable log file capture of session",
+    )
+    log_group.addoption(
         "--log-file-root",
         action="store",
         default=".logs",
         help="Specify the directory where session logs are stored relative to rootpath",
     )
-    parser.addoption(
+
+    collect_group = parser.getgroup("collect")
+    collect_group.addoption(
         "--no-collect-skip",
         action="store_true",
         help="Remove skipped tests from collection",
     )
 
-
-def create_log_directories(config):
-    log_root = config.rootpath / config.option.log_file_root
-    log_root.mkdir(parents=True, exist_ok=True)
-
-    session_id = str(uuid.uuid4())
-    config.option.session_id = session_id
-    session_path = log_root / session_id
-    session_path.mkdir(exist_ok=False)
-    config.option.session_log_dir = session_path
-    return session_path
-
-
-def is_log_cli_enabled(config):
-    return config.getoption("log_cli", None) or config.getini("log_cli")
-
-
-def set_log_level(config, option):
-    """Default to cmd input, then config then cmd log_level, then ini log_level"""
-    log_level = (
-        config.getini(option)  # Check pytest.ini or pyproject.toml
-        or config.getoption("log_level")  # Fallback to another CLI option
-        or config.getini("log_level")  # Fallback to another INI option
-        or "WARNING"  # Default to WARNING
+    report_group = parser.getgroup("terminal reporting")
+    report_group.addoption(
+        "--default-html",
+        default=True,
+        type=bool,
+        help="Use pre-configured pytest-html options; may override other pytest-html command options",
     )
-    setattr(config.option, option, log_level)
 
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_configure(config):
     # There appears to be separation of cmd line options vs ini options
     # It would be nice if these eventually combined into one config, but I couldn't find documentation supporting this desire
-    # So, forgive the below niave approach
-    if is_log_cli_enabled(config):
+    # So, forgive the below naive approach
+    if _is_log_cli_enabled(config):
         if not config.getoption("log_format", None):
             config.option.log_format = config.getini("log_format")
-        set_log_level(config, "log_cli_level")
+        _set_log_level(config, "log_cli_level")
         # have root logger share same level as console level
         # able to have minimal console output, with full log file output
         logger.setLevel(config.option.log_cli_level)
-        set_log_level(config, "log_file_level")
+    if _is_log_file_enabled(config):
+        _set_log_level(config, "log_file_level")
         if not config.getoption("log_date_format"):
             config.option.log_date_format = config.getini("log_date_format")
-        session_path = create_log_directories(config)
-        config.option.htmlpath = session_path / "report.html"
-        config.option.self_contained_html = True
+        session_path = _create_log_directories(config)
+        if config.getoption("default_html"):
+            config.option.htmlpath = session_path / "report.html"
+            config.option.self_contained_html = True
 
     config.option.test_index1 = 0
     config.option.test_log_dir = None
@@ -88,7 +80,7 @@ def pytest_collection_modifyitems(items):
 
 @pytest.hookimpl(tryfirst=True)
 def pytest_sessionstart(session):
-    if not is_log_cli_enabled(session.config):
+    if not _is_log_file_enabled(session.config):
         return
     file_handler = logging.FileHandler(
         session.config.getoption("session_log_dir") / "session.log", mode="w"
@@ -99,21 +91,11 @@ def pytest_sessionstart(session):
     logger.info("Session started")
 
 
-def _create_log_formatter(config):
-    return logging.Formatter(
-        fmt=config.option.log_format, datefmt=config.option.log_date_format
-    )
-
-
-def _increment_test_index(config):
-    config.option.test_index1 += 1
-
-
 @pytest.hookimpl(wrapper=True, tryfirst=True)
 def pytest_runtest_protocol(item, nextitem):
     config = item.config
     _increment_test_index(config)
-    if is_log_cli_enabled(config):
+    if _is_log_file_enabled(config):
         test_log_dir = (
             Path(config.option.session_log_dir)
             / f"{config.option.test_index1:04d}_{item.name}"
@@ -130,7 +112,7 @@ def pytest_runtest_protocol(item, nextitem):
     try:
         return (yield)
     finally:
-        if is_log_cli_enabled(config):
+        if _is_log_file_enabled(config):
             logger.debug("Remove test log handler")
             logger.removeHandler(file_handler)
 
@@ -173,3 +155,44 @@ def pytest_html_report_title(report):
 #     if report.when == "call":
 #         report.user_properties.append(("xfailreason", getattr(report, "wasxfail", None)))
 #     print(f"runtest_makereport {report.when} {id(report)}")
+
+
+def _create_log_directories(config) -> Path:
+    log_root = config.rootpath / config.option.log_file_root
+    log_root.mkdir(parents=True, exist_ok=True)
+
+    session_id = str(uuid.uuid4())
+    config.option.session_id = session_id
+    session_path = log_root / session_id
+    session_path.mkdir(exist_ok=False)
+    config.option.session_log_dir = session_path
+    return session_path
+
+
+def _is_log_cli_enabled(config) -> bool:
+    return config.getoption("log_cli", None) or config.getini("log_cli")
+
+
+def _is_log_file_enabled(config) -> bool:
+    return config.getoption("log_file_enabled")
+
+
+def _set_log_level(config, option) -> None:
+    """Default to cmd input, then config then cmd log_level, then ini log_level"""
+    log_level = (
+        config.getini(option)  # Check pytest.ini or pyproject.toml
+        or config.getoption("log_level")  # Fallback to another CLI option
+        or config.getini("log_level")  # Fallback to another INI option
+        or "WARNING"  # Default to WARNING
+    )
+    setattr(config.option, option, log_level)
+
+
+def _create_log_formatter(config) -> logging.Formatter:
+    return logging.Formatter(
+        fmt=config.option.log_format, datefmt=config.option.log_date_format
+    )
+
+
+def _increment_test_index(config) -> None:
+    config.option.test_index1 += 1

@@ -6,7 +6,7 @@ from toolkit.generic_api import pytest_api
 
 
 class TestClass:
-    @pytest.mark.tags("smoke")
+    @pytest.mark.smoke
     def test_pass(self, request, android_device):
         logging.debug("running %s", request.node.name)
         logging.info("android_device=%s", android_device)

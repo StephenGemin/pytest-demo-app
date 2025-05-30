@@ -7,15 +7,14 @@ block_cipher = None
 
 added_files = [
     *copy_metadata('pytest'),
-    *copy_metadata('pytest_html'),
-    *copy_metadata('pluggy'),
     *collect_data_files('_pytest'),
-    *copy_metadata('pytest_metadata'),
+    *copy_metadata('pytest_html'),
     *collect_data_files('pytest_html'),
+    *copy_metadata('pluggy'),
+    *copy_metadata('pytest_metadata'),
     *copy_metadata('pytest_html'),
     *collect_data_files('jinja2'),
     *collect_data_files('pluggy', include_py_files=True),
-    *copy_metadata('pytest_tagging'),
 ]
 
 hidden_imports = [
@@ -26,7 +25,6 @@ hidden_imports = [
     'jinja2.ext',
     *collect_submodules('pytest_metadata'),
     *collect_submodules('pytest_html'),
-    *collect_submodules('pytest_tagging'),
     *collect_submodules('toolkit'),
     *collect_submodules('tests'),
 ]
